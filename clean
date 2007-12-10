@@ -1,0 +1,6 @@
+rm -v *~ *.asv
+chmod -x *.m
+for x in *.m
+do
+  dos2unix -k $x
+done
