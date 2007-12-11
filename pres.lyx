@@ -1,0 +1,125 @@
+#LyX 1.5.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
+\textclass beamer
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\paperfontsize default
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Dimensionality Reduction for Visualization of Text Similarity
+\end_layout
+
+\begin_layout Author
+Russell Yanofsky (rey4@columbia.edu)
+\end_layout
+
+\begin_layout BeginFrame
+Summary
+\end_layout
+
+\begin_layout Itemize
+Applying Kernel Principal Component Analysis (KPCA), Semidefinite Embedding
+ (SDE) and Minimum Volume Embedding (MVE) to labeled text data to reduce
+ dimensionality, and view relationships between documents in a collection
+ of documents in 2d.
+\end_layout
+
+\begin_layout Itemize
+Potentially useful for research, to visualize output of classification algorithm
+s.
+ Could also be applied on the web to provide visual navigation of search
+ results, related article listings, etc.
+\end_layout
+
+\begin_layout BeginFrame
+Principal Components Analyis (PCA)
+\end_layout
+
+\begin_layout Itemize
+Given cloud of points centered around mean, wide in some directions, narrow
+ in others
+\end_layout
+
+\begin_layout Itemize
+Compute eignenvectors of covariance matrix, 
+\begin_inset Formula $C=\frac{1}{N}\sum_{i=1}^{N}\left(x_{i}-\overline{x}\right)\left(x_{i}-\overline{x}\right)^{\prime}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Gives set of orthogonal axes through mean point, aligned with directions
+ of greatest variance
+\end_layout
+
+\begin_layout Itemize
+Best 2-D projection (capturing spread of data) is in plane of two axes with
+ highest eigenvalues
+\end_layout
+
+\begin_layout BeginFrame
+Kernel PCA
+\end_layout
+
+\begin_layout Itemize
+PCA can be performed using dot products between points instead of point
+ coordinates (Gram matrix instead of covariance matrix)
+\end_layout
+
+\begin_layout Itemize
+Kernel functions between two points can be substituted for dot products
+ allowing non-linear extension of PCA (for visualization, this means non-linear
+ projections)
+\end_layout
+
+\begin_layout Itemize
+Steps
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+
+\end_layout
+
+\end_deeper
+\begin_layout EndFrame
+
+\end_layout
+
+\end_body
+\end_document
