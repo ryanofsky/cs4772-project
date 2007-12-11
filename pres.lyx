@@ -76,7 +76,7 @@ Given cloud of points centered around mean, wide in some directions, narrow
 
 \begin_layout Itemize
 Compute eignenvectors of covariance matrix, 
-\begin_inset Formula $C=\frac{1}{N}\sum_{i=1}^{N}\left(x_{i}-\overline{x}\right)\left(x_{i}-\overline{x}\right)^{\prime}$
+\begin_inset Formula $C=\frac{1}{M}\sum_{j=1}^{M}\left(x_{j}-\overline{x}\right)\left(x_{j}-\overline{x}\right)^{\prime}$
 \end_inset
 
 
@@ -113,10 +113,414 @@ Steps
 
 \begin_deeper
 \begin_layout Enumerate
+Compute gram matrix 
+\begin_inset Formula $K_{ij}=k(x_{i},x_{j})$
+\end_inset
+
 
 \end_layout
 
+\begin_layout Enumerate
+Center matrix 
+\begin_inset Formula $\widetilde{K}_{ij}=K_{ij}-\frac{1}{M}\sum_{m=1}^{M}K_{mj}-\frac{1}{M}\sum_{n=1}^{M}K_{in}+\frac{1}{N^{2}}\sum_{m,n=1}^{M}K_{mn}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Find eigenvectors and eigenvalues (eigenvectors 
+\begin_inset Formula $\overrightarrow{\alpha_{n}}$
+\end_inset
+
+ normalized so that 
+\begin_inset Formula $\lambda_{k}\left(\overrightarrow{\alpha_{k}}\cdot\overrightarrow{\alpha_{k}}\right)=1$
+\end_inset
+
+ for all 
+\begin_inset Formula $k$
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Enumerate
+Take projection of points, 
+\begin_inset Formula $V\Lambda$
+\end_inset
+
+, where 
+\begin_inset Formula $V$
+\end_inset
+
+ is eigenvector matrix, 
+\begin_inset Formula $\Lambda$
+\end_inset
+
+ is matrix with 
+\begin_inset Formula $\sqrt{\lambda_{1}}\ldots\sqrt{\lambda_{M}}$
+\end_inset
+
+ along diagonal
+\end_layout
+
+\begin_layout Enumerate
+Plot 2D visualization using 2 coordinates with highest eigenvalues, dropping
+ other coordinates
+\end_layout
+
 \end_deeper
+\begin_layout BeginFrame
+Semidefinite Embedding
+\end_layout
+
+\begin_layout Itemize
+Builds on Kernel PCA, finding optimal Kernel Matrix using semidefinite programmi
+ng.
+\end_layout
+
+\begin_layout Itemize
+Given a set of 
+\begin_inset Quotes eld
+\end_inset
+
+neighbors
+\begin_inset Quotes erd
+\end_inset
+
+ for each point, maintains distances between neighboring points while maximizing
+ distances between unconstrained points.
+\end_layout
+
+\begin_layout Itemize
+Advantage: If points are scattered on high dimensional manifold which twists
+ and curves, fixing neighboring points and spreading out distant points
+ 
+\begin_inset Quotes eld
+\end_inset
+
+flattens
+\begin_inset Quotes erd
+\end_inset
+
+ manifold, giving good visualization of points lying on it.
+\end_layout
+
+\begin_layout Itemize
+Program: Maximize 
+\begin_inset Formula $tr\left(K\right)$
+\end_inset
+
+ (distance between points), subject to 
+\begin_inset Formula $K\succ0$
+\end_inset
+
+ (positive semidefinite kernel matrix), 
+\begin_inset Formula $\sum_{ij}K_{ij}=0$
+\end_inset
+
+ (centers kernel matrix), and 
+\begin_inset Formula $K_{ii}+K_{jj}-K_{ij}-K_{ji}=G_{ii}+G_{jj}-G_{ij}-G_{ji}$
+\end_inset
+
+ where 
+\begin_inset Formula $G_{ij}=x_{i}\cdot x_{j}$
+\end_inset
+
+ for all points 
+\begin_inset Formula $i$
+\end_inset
+
+ and 
+\begin_inset Formula $j$
+\end_inset
+
+ which are neighbor of each other or a common point (preserves local distances).
+\end_layout
+
+\begin_layout BeginFrame
+Minimum Volume Embedding
+\end_layout
+
+\begin_layout Itemize
+Builds on Semidefinite embedding.
+ Instead of maximizing 
+\begin_inset Formula $tr\left(K\right)=\sum_{i=1}^{N}\lambda_{i}$
+\end_inset
+
+, seeks to maximize 
+\begin_inset Formula $\sum_{i=1}^{d}\lambda_{i}-\sum_{i=d+1}^{N}\lambda_{i}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Instead of maximizing distance between point in every dimension, only maximizes
+ distance in the first 
+\begin_inset Formula $d$
+\end_inset
+
+ dimensions being visualized, and minimize distance in remaining dimensions.
+\end_layout
+
+\begin_layout Itemize
+This does a better job 
+\begin_inset Quotes eld
+\end_inset
+
+flattening
+\begin_inset Quotes erd
+\end_inset
+
+ the data, minimizing volume behind it, at cost of being more expensive
+ to compute.
+\end_layout
+
+\begin_layout Itemize
+Algorithm is iterative, taking existing kernel matrix, 
+\begin_inset Formula $K$
+\end_inset
+
+, finding eigenvectors 
+\begin_inset Formula $\overrightarrow{v_{i}}$
+\end_inset
+
+, performing modified SDE to minimize 
+\begin_inset Formula $tr\left(K\left(-\sum_{i=1}^{d}\overrightarrow{v_{i}}\overrightarrow{v_{i}}{}^{\prime}+\sum_{i=d+1}^{N}\overrightarrow{v_{i}}\overrightarrow{v_{i}}{}^{\prime}\right)\right)$
+\end_inset
+
+, and repeating with new 
+\begin_inset Formula $K$
+\end_inset
+
+ until convergence.
+\end_layout
+
+\begin_layout BeginFrame
+Text Representation
+\end_layout
+
+\begin_layout Itemize
+Each document is represented as a vector of word counts, normalized so documents
+ of differing lengths can be compared.
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+Stemming
+\emph default
+ algorithm maps related words with different suffixes.
+ For example, 
+\begin_inset Quotes eld
+\end_inset
+
+computes
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+computing
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+computer
+\begin_inset Quotes erd
+\end_inset
+
+, mapped into a canonical word stem form, 
+\begin_inset Quotes eld
+\end_inset
+
+comput
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+To cut down on irrelevant features, a stop word list is used to remove words
+ like 
+\begin_inset Quotes eld
+\end_inset
+
+and
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+or
+\begin_inset Quotes erd
+\end_inset
+
+, and 
+\begin_inset Quotes eld
+\end_inset
+
+the
+\begin_inset Quotes erd
+\end_inset
+
+ from feature vectors.
+\end_layout
+
+\begin_layout Itemize
+Remaining words are weighted by 
+\emph on
+inverse document frequency
+\emph default
+ (IDF), which is just one over the total number of documents a word appears
+ in.
+\end_layout
+
+\begin_layout Itemize
+RBF kernel used with above preprocessing steps, since this kernel and representa
+tion have been shown to be effective for text categorization (Joachims 98)
+\end_layout
+
+\begin_layout BeginFrame
+Experiment
+\end_layout
+
+\begin_layout Itemize
+Experiment was to do two dimensional visualization with issue documents
+ from 2008 presidential candidates' campaign web sites.
+\end_layout
+
+\begin_layout Itemize
+Each document was labeled for the its topic (environment, healthcare, foreign
+ policy, etc.), and the candidate whose views it expressed (Clinton, Giuliani,
+ etc.)
+\end_layout
+
+\begin_layout Itemize
+Having dataset with two distinct labels for each point, makes visualization
+ more interesting, makes it easier to look for patterns in output.
+\end_layout
+
+\begin_layout BeginFrame
+Results
+\end_layout
+
+\begin_layout Itemize
+In progress...
+\end_layout
+
+\begin_layout Itemize
+So far no clear or especially meaningful patterns in visualizations have
+ emerged
+\end_layout
+
+\begin_layout Itemize
+Sample visualization: Kernel PCA with Gaussian kernel, each candidate a
+ different color, each topic a different symbol
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename pres-result.eps
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout BeginFrame
+References
+\end_layout
+
+\begin_layout Itemize
+T.
+ Joachims.
+ Text categorization with Support Vector Machines: Learning with many relevant
+ features.
+ In Machine Learning: ECML-98, Tenth European Conference on Machine Learning,
+ pp.
+ 137--142, 1998.
+\end_layout
+
+\begin_layout Itemize
+B.
+ Scholkopf, A.
+ Smola, and K.
+ Muller.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Nonlinear component analysis as a kernel eigenvalue problem.
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\emph on
+Neural Computation
+\emph default
+, 10, 1998.
+\end_layout
+
+\begin_layout Itemize
+B.
+ Shaw and T.
+ Jebara.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Minimum Volume Embedding.
+\begin_inset Quotes erd
+\end_inset
+
+ Artificial Intelligence and Statistics, AISTATS, March 2007.
+\end_layout
+
+\begin_layout Itemize
+K.
+ Q.
+ Weinberger, F.
+ Sha, and L.
+ K.
+ Saul.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Learning a kernel matrix for nonlinear dimensionality reduction.
+\begin_inset Quotes erd
+\end_inset
+
+ In Proceedings of the Twenty First International Conference on Machine
+ Learning (ICML-04), pages 839–846, Banff, Canada, 2004.
+\end_layout
+
 \begin_layout EndFrame
 
 \end_layout

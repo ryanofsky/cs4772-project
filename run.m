@@ -13,7 +13,7 @@ words = words + 1;
 
 %%
 %viz = compute_mapping(words, 'PCA', 2);
-%viz = compute_mapping(words, 'KPCA', 2);
+viz = compute_mapping(words, 'KPCA', 2);
 %viz = compute_mapping(words, 'MVU', 2, 12);
 
 %%
