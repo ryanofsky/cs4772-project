@@ -46,7 +46,8 @@ def main(text_dir):
   for file in os.listdir(text_dir):
     m = re.match(r"^([^-\d]+)-([^-\d]+)(\d*)$", file)
     if not m:
-      raise Exception("invalid filename `%s'" % file)
+      print("skipping file `%s'" % file)
+      continue
     issue, candidate, num = m.groups()
     try:
       words = issuewords[issue, candidate]
@@ -70,11 +71,18 @@ def main(text_dir):
       fp.write("\n")
   finally:
     fp.close()
-
-  write_mat("issues.mat", [issues[e[0]][0] for e in i])
-  write_mat("candidates.mat", [candidates[e[1]][0] for e in i])
   write_mat("markers.mat", [issues[e[0]][1] for e in i])
   write_mat("colors.mat", [colors[candidates[e[1]][1]] for e in i])
+
+  # output stuff for legend
+  issue_vals = issues.values()
+  issue_vals.sort()
+  candidate_vals = candidates.values()
+  candidate_vals.sort()
+  write_mat("legend_issue_names.mat", [v[0] for v in issue_vals])
+  write_mat("legend_issue_markers.mat", [v[1] for v in issue_vals])
+  write_mat("legend_candidate_names.mat", [v[0] for v in candidate_vals])
+  write_mat("legend_candidate_colors.mat", [colors[v[1]] for v in candidate_vals])
 
 def parse_file(text_dir, file, words, allwords):
   fp = open(os.path.join(text_dir, file), "r")
