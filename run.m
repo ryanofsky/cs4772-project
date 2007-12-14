@@ -1,42 +1,50 @@
-%%
+%% Load data
 clear
 load('words.mat', '-ascii');
-load('issues.mat', '-ascii');
-issues = char(issues);
-load('candidates.mat', '-ascii');
-candidates = char(candidates);
 load('colors.mat', '-ascii');
 load('markers.mat', '-ascii');
+load('legend_candidate_names.mat', '-ascii');
+load('legend_candidate_colors.mat', '-ascii');
+load('legend_issue_names.mat', '-ascii');
+load('legend_issue_markers.mat', '-ascii');
 markers = char(markers);
+legend_candidate_names = char(legend_candidate_names);
+legend_issue_names = char(legend_issue_names);
+legend_issue_markers = char(legend_issue_markers);
 
-words = words + 1;
 
-%%
-%viz = compute_mapping(words, 'PCA', 2);
-viz = compute_mapping(words, 'KPCA', 2);
-%viz = compute_mapping(words, 'MVU', 2, 12);
+%% Make vector representation
+% compute document frequency for each word
+IDF = log(size(words, 1) ./ sum(words > 0));
+% normalize for document length
+words = words ./ repmat(sum(words, 2), 1, size(words, 2));
+% weight words by IDF
+nwords = words .* repmat(IDF, size(words, 1), 1);
 
-%%
 
-A = calculateAffinityMatrix(words', 2, 1000);
+%% Do kernel PCA
+viz = compute_mapping(words, 'KPCA', 2, 'gauss', 1);
+scatter_plot(viz, markers, colors, ...
+             legend_candidate_names, legend_candidate_colors, ...
+             legend_issue_names, legend_issue_markers);
+
+
+%% Do SDE
+A = calculateAffinityMatrix(words', 2, 1);
 G = convertAffinityToDistance(A);
-neighbors = calculateNeighborMatrix(G, 12, 1);
+neighbors = calculateNeighborMatrix(G, 58, 1);
+[viz, K, sdeEigVals, sdeScore] = sde(A, neighbors, 2);
+%viz = compute_mapping(words, 'MVU', 2, 15);
+scatter_plot(viz, markers, colors, ...
+             legend_candidate_names, legend_candidate_colors, ...
+             legend_issue_names, legend_issue_markers);
 
-%%
-[Ysde, K, sdeEigVals, sdeScore] = sde(A, neighbors, 2);
 
-%%
+%% Do MVE
+A = calculateAffinityMatrix(words', 2, 1);
+G = convertAffinityToDistance(A);
+neighbors = calculateNeighborMatrix(G, 15, 1);
 [Y, K, eigVals, mveScore] = mve(A, neighbors, 0.99, 2);
-
-%%
-clf
-scatter_plot(Ysde, markers, colors)
-
-%%
-plotEmbedding(Ysde, neighbors, 'SDE embedding' ,36)
-
-%%
-scatter_plot(viz, markers, colors)
-
-%%
-scatter((1:size(viz,1))', viz(:,1))
+scatter_plot(viz, markers, colors, ...
+             legend_candidate_names, legend_candidate_colors, ...
+             legend_issue_names, legend_issue_markers);

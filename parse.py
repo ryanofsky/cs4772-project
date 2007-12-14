@@ -12,7 +12,7 @@ issues = { "domestic"    : ("Domestic Issues", "+"),
            "foreign"     : ("Foreign Policy",  "x"),
            "health"      : ("Healthcare",      "s"),
            "immigration" : ("Immigration",     "d"),
-           "social"      : ("Social",          "^") }
+           "social"      : ("Social Issues",   "^") }
 
 candidates = { "clint"  : ("Clinton",  0),
                "ed"     : ("Edwards",  1),
@@ -21,7 +21,7 @@ candidates = { "clint"  : ("Clinton",  0),
                "mccain" : ("Mccain",   4),
                "obama"  : ("Obama",    5),
                "rom"    : ("Romney",   6),
-               "thom"   : ("Thompson", 8) }
+               "thom"   : ("Thompson", 12) }
 
 colors = [ (0.0,    0.0,    0.0),    #color 0  Black
            (0.0,    0.0,    2.0/3),  #color 1  Blue
