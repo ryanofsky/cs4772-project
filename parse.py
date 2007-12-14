@@ -3,6 +3,7 @@
 import os
 import sys
 import re
+import stem
 
 issues = { "domestic"    : ("Domestic Issues", "+"),
            "econ"        : ("Economy",         "o"),
@@ -43,6 +44,9 @@ def main(text_dir):
   issuewords = {}
   allwords = set()
 
+  r = re.compile(r"[\s\r\n]+", re.M)
+  stopwords = set(map(wstem, filter(None, r.split(open('stop_words').read()))))
+
   for file in os.listdir(text_dir):
     m = re.match(r"^([^-\d]+)-([^-\d]+)(\d*)$", file)
     if not m:
@@ -54,7 +58,7 @@ def main(text_dir):
     except KeyError:
       words = issuewords[issue, candidate] = {}
 
-    parse_file(text_dir, file, words, allwords)
+    parse_file(text_dir, file, words, allwords, stopwords)
 
   w = list(allwords)
   w.sort()
@@ -62,6 +66,7 @@ def main(text_dir):
   i = issuewords.keys()
   i.sort()
 
+  print "Writing words.mat (%i word stems)" % len(allwords)
   fp = open("words.mat", "w")
   try:
     for issue, candidate in i:
@@ -84,17 +89,16 @@ def main(text_dir):
   write_mat("legend_candidate_names.mat", [v[0] for v in candidate_vals])
   write_mat("legend_candidate_colors.mat", [colors[v[1]] for v in candidate_vals])
 
-def parse_file(text_dir, file, words, allwords):
+def parse_file(text_dir, file, words, allwords, stopwords):
   fp = open(os.path.join(text_dir, file), "r")
   try:
     url = fp.readline().rstrip()
     if not re.match(r"^[a-z]+://\S+$", url):
-      print "url=`%s'" % url
       raise Exception("%s doesn't start with url" % file)
 
-    print "%s: %s" % (file, url)
+    print "Reading %s (%s)" % (file, url)
   
-    for word in parse_words(fp.read()):
+    for word in parse_words(fp.read(), stopwords):
       allwords.add(word)
       try:
         words[word]
@@ -108,6 +112,7 @@ def parse_file(text_dir, file, words, allwords):
     fp.close()
 
 def write_mat(file, mat):
+  print "Writing", file
   l = max(map(len, mat))
   fp = open(file, "w")
   try:
@@ -126,12 +131,18 @@ def write_mat(file, mat):
   finally:
     fp.close()
 
-def parse_words(str):
+def parse_words(str, stopwords):
   for word in re.split(r"[^-\.'a-zA-Z]|\.\.\.", str):
     word = word.strip("-.'").lower()
     if word:
-      yield word
+      word = wstem(word)
+      if word not in stopwords:
+        yield word
 
+p = stem.PorterStemmer()
+def wstem(w):
+  return p.stem(w, 0, len(w)-1)
+  
 if __name__ == "__main__":
   if len(sys.argv) < 2:
      print "Usage: parse.py text_dir"
