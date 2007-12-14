@@ -1,4 +1,4 @@
-function scatter_plot(X, marker, color, legend_candidate_names, legend_candidate_colors, legend_issue_names, legend_issue_markers)
+function scatter_plot(X, marker, color, show_neighbors, neighbors, legend_candidate_names, legend_candidate_colors, legend_issue_names, legend_issue_markers)
 
 clf
 hold on
@@ -11,12 +11,24 @@ hy = max(X(:,2));
 set(gca, 'XLimMode', 'manual', 'YLimMode', 'manual', ...
     'XLim', [lx, hx], 'YLim', [ly hy]);
 
+% show neighbors
+if show_neighbors
+  for i=1:size(neighbors, 1)
+    for j=1:size(neighbors, 2)
+      if neighbors(i, j) == 1
+        line( [X(i, 1), X(j, 1)], [X(i, 2), X(j, 2)], 'Color', [.9, .9, .9]);
+      end
+    end
+  end
+end
+
 % plot points
 for i = 1:size(X,1)
   plot(X(i,1), X(i, 2), 'Marker', marker(i,:), ...
       'MarkerEdgeColor', color(i,:),...
       'MarkerFaceColor', color(i,:))   
 end
+
 
 % plot points for legend offscreen
 n = 1
