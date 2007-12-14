@@ -23,7 +23,7 @@ nwords = words .* repmat(IDF, size(words, 1), 1);
 
 
 %% Do kernel PCA
-viz = compute_mapping(words, 'KPCA', 2, 'gauss', 1);
+viz = compute_mapping(words, 'KPCA', 2, 'gauss', 10000);
 scatter_plot(viz, markers, colors, 0, 0,...
              legend_candidate_names, legend_candidate_colors, ...
              legend_issue_names, legend_issue_markers);

@@ -1,4 +1,4 @@
-rm -v *~ *.asv *.mat
+rm -v *~ *.asv *.mat *.bak *.pyc
 chmod -x *.m
 for x in *.m
 do

@@ -60,7 +60,7 @@ Techniques which express high dimensional data in a reduced number of dimensions
  This paper explores a somewhat unlikely application of dimensionality reduction
  techniques, applying techniques extremely well suited to visualization
  of data in two or three dimensions to a collection of text documents in
- English, which comprise a dataset that is not normally subject to 2D plotting
+ English, which comprise a data set that is not normally subject to 2D plotting
  and spatial analysis.
  The techniques used are Semidefinite Embedding (SDE) and Minimum Volume
  Embedding (MVE), which are both based on the general technique of Kernel
@@ -68,10 +68,10 @@ Techniques which express high dimensional data in a reduced number of dimensions
  A preprocessed representation of text based on word frequency (disregarding
  word order) is used as input to these algorithms.
  This type of representation has been shown in other work to be effective
- at text categorization with kernel methods, although in this case, the
- results for visualization do not turn out to be very compelling, which
- may be due to the broad specification of the problem, or the nature of
- the data set used in the experiment.
+ at text categorization with kernel methods, and in an experiment with a
+ small number of related documents, gives good visualization results with
+ a simple RBF kernel, though not much improvement with the more powerful
+ SDE and MVE techniques.
 \end_layout
 
 \begin_layout Section
@@ -88,18 +88,17 @@ Textual data is among the most ubiquitous forms of data that exist today,
  be easy.
  To help manage this problem, visualization techniques have the potential
  to be applied to provide an aide to human navigation.
- The idea behind visualization for this purpose would be to show documents
- which are related to each other as points clustered together in a two or
- three dimensional space.
+ The idea behind visualization for this purpose is to show documents which
+ are related to each other as points clustered together in a two or three
+ dimensional space.
 \end_layout
 
 \begin_layout Standard
 Visual representations like this could have uses in certain types of research,
  for example, in helping to sort through large archives of historical documents.
- It could also be used on the Internet, as an accompaniment to search results
- and the automated recommendation systems commonly seen on book and movie
- websites.
- Finally, it might have use in the testing and development of other natural
+ They could also be used on the Internet, as accompaniments to search results
+ and the automated recommendations commonly given on book and movie websites.
+ Finally, they might have use in the testing and development of other natural
  language processing algorithms, providing a tool to summarize large amounts
  of data, and to help evaluate experimental results.
 \end_layout
@@ -114,20 +113,20 @@ key "allan97interactive"
 \end_inset
 
  uses a feedback method, positioning points representing documents in a
- space, and iteratively moving the documents in space closer together and
- farther apart based on similarity scores.
+ space, and iteratively moving the documents in space closer together or
+ farther apart, depending on similarity scores.
  Another system 
 \begin_inset LatexCommand cite
 key "carey-info"
 
 \end_inset
 
- uses a visualization technique called sammon mapping to compute the low
- dimensional representation.
+ uses a visualization technique called Sammon mapping to compute a similar
+ type of low dimensional representation.
 \end_layout
 
 \begin_layout Standard
-This paper presents the application of two more recent visualization techniques,
+This paper presents the application of two newer visualization techniques,
  Semidefinite Embedding (SDE) 
 \begin_inset LatexCommand cite
 key "000sde"
@@ -140,8 +139,8 @@ key "000bshaw"
 
 \end_inset
 
- to documentation visualization, and shows the results of applying these
- techniques to a small data set.
+ to document visualization, and shows the results of applying these techniques
+ to a small data set.
 \end_layout
 
 \begin_layout Section
@@ -149,188 +148,523 @@ PCA Dimensionality Reduction Techniques
 \end_layout
 
 \begin_layout Standard
-The dimensionality reduction techniques used here can be understood in the
- context of Principal Component Analysis (PCA).
+The dimensionality reduction techniques used in this paper can be understood
+ in the context of Principal Component Analysis (PCA).
  PCA is a widely used technique for dimensionality reduction.
- In its ideal scenario, a guassian (ellipsoid shaped) cloud of points is
- distributed around some mean point.
+ In its ideal scenario, a Gaussian distributed (ellipsoid shaped) cloud
+ of 
+\begin_inset Formula $M$
+\end_inset
+
+ points, 
+\begin_inset Formula $\overrightarrow{x_{j}}$
+\end_inset
+
+, is distributed around some mean point 
+\begin_inset Formula $\overrightarrow{\mu}$
+\end_inset
+
+.
  Computing the covariance matrix of the points by 
-\begin_inset Formula $C=\frac{1}{M}\sum_{j=1}^{M}\left(x_{j}-\overline{x}\right)\left(x_{j}-\overline{x}\right)^{\prime}$
+\begin_inset Formula \[
+\Sigma=\frac{1}{M}\sum_{j=1}^{M}\left(\overrightarrow{x_{j}}-\overrightarrow{\mu}\right)\left(\overrightarrow{x_{j}}-\overrightarrow{\mu}\right)^{\prime}\]
+
 \end_inset
 
- gives the maximum likelihood estimate of the guassian distribution's covariance
+gives the maximum likelihood estimate of the Gaussian distribution's covariance
  parameter.
- Given this covariance parameter, the shape and orientation of the guassian
+ Given this covariance parameter, the shape and orientation of the Gaussian
  distribution is known.
- In particular, the orientation of the guassian ellipsoid axes can be found
- by computing the eigenvectors of the covariance matrix.
- The longest axis, which points along the direction where the data points
- have the largest spread, is described by the eigenvector with the largest
- corresponding eigenvalue.
- The smallest axis 
+ In particular, the orientation of the axes of the ellipsoidal shape described
+ by the Gaussian distribution can be found by computing the eigenvectors
+ of the covariance matrix,
+\begin_inset Formula \[
+\Sigma\overrightarrow{v_{j}}=\lambda_{j}\overrightarrow{v_{j}}\]
+
+\end_inset
+
+.
+ The longest ellipsoid axis, pointing along the direction in the cloud where
+ the data points have the largest variance, is described by the eigenvector
+ with the largest corresponding eigenvalue.
+ Axes pointing in directions where data has progressively less variance
+ are described by eigenvectors that have progressively lower eigenvalues.
+ Projecting data points onto axes that have the orientation of the eigenvectors,
+ and that all intersect at the mean position of all the points, and then
+ taking the position along each axis as a new set of coordinates for each
+ point, gives an alternate representation of the data from which it is possible
+ to reconstruct the original positions of the points.
+ With the eigenvectors of 
+\begin_inset Formula $C$
+\end_inset
+
+ expressed as columns of a matrix 
+\begin_inset Formula $V=\left(\begin{array}{ccc}
+v_{1} & \cdots & v_{D}\end{array}\right)$
+\end_inset
+
+, and the mean-centered, 
+\begin_inset Formula $D$
+\end_inset
+
+-dimensional data points given as rows of a matrix 
+\begin_inset Formula $X=\left(\begin{array}{c}
+x_{1}-\overline{x}\\
+\vdots\\
+x_{M}-\overline{x}\end{array}\right),$
+\end_inset
+
+ the alternate representation is given by 
+\begin_inset Formula \[
+Y=XV\]
+
+\end_inset
+
+, where the transformed coordinates of each point can be found in rows of
+ the matrix 
+\begin_inset Formula $Y$
+\end_inset
+
+.
+ 
 \end_layout
 
-\begin_layout Itemize
-Given cloud of points centered around mean, wide in some directions, narrow
- in others
+\begin_layout Standard
+The coordinates of the transformed data points for axes with low eigenvalues
+ will be, intuitively, close to 0, because variances along these axes are
+ low, and because the axes pass through the mean of the data.
+ Because of this, a low dimensional representation of the data can be found
+ by simply dropping these coordinates, and only keeping the coordinates
+ of the alternate representation corresponding to axes with high eigenvalues.
+ If the eigenvalues of the dropped coordinates are very low, it will still
+ be possible to construct good approximations of the original points by
+ substituting 0 for those values when reversing the transformation.
 \end_layout
 
-\begin_layout Itemize
-Compute eignenvectors of covariance matrix, 
-\begin_inset Formula $C=\frac{1}{M}\sum_{j=1}^{M}\left(x_{j}-\overline{x}\right)\left(x_{j}-\overline{x}\right)^{\prime}$
+\begin_layout Standard
+PCA gives the best possible low dimensional representation of a high dimensional
+ data set, when the transformation between the two data sets has to be a
+ linear transformation.
+ Kernel PCA generalizes normal PCA to allow non-linear transformations between
+ the low and high dimensional representations, providing better performance
+ in many cases.
+\end_layout
+
+\begin_layout Subsection*
+Kernel PCA
+\end_layout
+
+\begin_layout Standard
+Kernel PCA 
+\begin_inset LatexCommand cite
+key "sch98nonlinear"
+
+\end_inset
+
+ works, conceptually, by allowing the high-dimensional original data points,
+ 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\overrightarrow{x_{j}}$
+\end_inset
+
+, to be mapped to an even higher dimensional intermediate form by an arbitrary
+ function
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ 
+\begin_inset Formula $\phi\left(\overrightarrow{x_{j}}\right)$
+\end_inset
+
+,
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+ 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+before finding the final low-dimensional representation through the normal
+ process of PCA.
+ To make this idea both computationally feasible and even more general,
+ Kernel PCA recasts the PCA formulas for finding the alternate coordinate
+ representation, so they are expressed in terms of dot products 
+\begin_inset Formula $\phi\left(\overrightarrow{x_{j}}\right)\cdot\phi\left(\overrightarrow{x_{k}}\right)$
+\end_inset
+
+, and individual 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\phi\left(\overrightarrow{x_{j}}\right)$
+\end_inset
+
+ terms never appear alone.
+ The use of dot products is important because for many useful 
+\begin_inset Formula $\phi$
+\end_inset
+
+ mappings into high- (or infinitely-) dimensional spaces, it is possible
+ to compute the dot product between two points from the lower dimensional
+ 
+\begin_inset Formula $\overrightarrow{x_{j}}$
+\end_inset
+
+ and 
+\begin_inset Formula $\overrightarrow{x_{k}}$
+\end_inset
+
+ values without ever actually computing the high dimensional mappings.
+ Functions which compute these types of dot products are called kernels,
+ and are denoted: 
+\begin_inset Formula \[
+k\left(\overrightarrow{x_{j}},\overrightarrow{x_{k}}\right)=\phi\left(\overrightarrow{x_{j}}\right)\cdot\phi\left(\overrightarrow{x_{k}}\right)\]
+
+\end_inset
+
+The process of performing Kernel PCA is not much more difficult than the
+ process of performing normal linear PCA, although it does not lend itself
+ as easily to geometric intuition.
+ The first step in performing Kernel PCA is to compute a kernel matrix,
+ 
+\begin_inset Formula $K$
+\end_inset
+
+, whose elements are given by the following for all data points:
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+
+\begin_inset Formula \[
+K_{ij}=k\left(\overrightarrow{x_{j}},\overrightarrow{x_{k}}\right)\]
+
 \end_inset
 
 
 \end_layout
 
-\begin_layout Itemize
-Gives set of orthogonal axes through mean point, aligned with directions
- of greatest variance
-\end_layout
-
-\begin_layout Itemize
-Best 2-D projection (capturing spread of data) is in plane of two axes with
- highest eigenvalues
-\end_layout
-
-\begin_layout Itemize
-
-\size large
---
-\end_layout
-
-\begin_layout Itemize
-PCA can be performed using dot products between points instead of point
- coordinates (Gram matrix instead of covariance matrix)
-\end_layout
-
-\begin_layout Itemize
-Kernel functions between two points can be substituted for dot products
- allowing non-linear extension of PCA (for visualization, this means non-linear
- projections)
-\end_layout
-
-\begin_layout Itemize
-Steps
-\end_layout
-
-\begin_deeper
-\begin_layout Enumerate
-Compute gram matrix 
-\begin_inset Formula $K_{ij}=k(x_{i},x_{j})$
+\begin_layout Standard
+The second step is to 
+\begin_inset Quotes eld
 \end_inset
 
-
-\end_layout
-
-\begin_layout Enumerate
-Center matrix 
-\begin_inset Formula $\widetilde{K}_{ij}=K_{ij}-\frac{1}{M}\sum_{m=1}^{M}K_{mj}-\frac{1}{M}\sum_{n=1}^{M}K_{in}+\frac{1}{N^{2}}\sum_{m,n=1}^{M}K_{mn}$
+center
+\begin_inset Quotes erd
 \end_inset
 
-
-\end_layout
-
-\begin_layout Enumerate
-Find eigenvectors and eigenvalues (eigenvectors 
-\begin_inset Formula $\overrightarrow{\alpha_{n}}$
+ the kernel matrix.
+ This step can seem abstract, but is really just the equivalent of subtracting
+ out the mean 
+\begin_inset Formula $\overrightarrow{\mu}=\sum_{i=1}^{M}\phi\left(\overrightarrow{x_{i}}\right)$
 \end_inset
 
- normalized so that 
-\begin_inset Formula $\lambda_{k}\left(\overrightarrow{\alpha_{k}}\cdot\overrightarrow{\alpha_{k}}\right)=1$
+ of the intermediate data points, so the dot products are computed as 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\left(\phi\left(\overrightarrow{x_{j}}\right)-\overrightarrow{\mu}\right)\cdot\left(\phi\left(\overrightarrow{x_{k}}\right)-\overrightarrow{\mu}\right)$
+\end_inset
+
+.
+ The efficient way of centering the kernel matrix, without having to compute
+ the high dimensional mappings, is to compute:
+\begin_inset Formula \[
+\widetilde{K}_{ij}=K_{ij}-\frac{1}{M}\sum_{m=1}^{M}K_{mj}-\frac{1}{M}\sum_{n=1}^{M}K_{in}+\frac{1}{N^{2}}\sum_{m,n=1}^{M}K_{mn}\]
+
+\end_inset
+
+Note that for a linear kernel, the centered 
+\begin_inset Formula $\widetilde{K}$
+\end_inset
+
+ matrix is just the 
+\begin_inset Formula $M\times M$
+\end_inset
+
+ Gram matrix of the centered data points.
+ This contrasts with the computation of a 
+\begin_inset Formula $D\times D$
+\end_inset
+
+ covariance matrix during the first step in Linear PCA, and can mean data
+ storage requirements will be lower or higher in Kernel PCA depending on
+ whether the number of points in the data set are lower or higher than the
+ number of dimensions.
+\end_layout
+
+\begin_layout Standard
+The next step in Kernel PCA is to find the eigenvalues and eigenvectors
+ of the 
+\begin_inset Formula $\widetilde{K}$
+\end_inset
+
+ matrix,
+\begin_inset Formula \[
+\widetilde{K}\overrightarrow{v_{j}}=\lambda_{j}\overrightarrow{v_{j}}\]
+
+\end_inset
+
+, with the eigenvectors normalized so 
+\begin_inset Formula $\lambda_{j}\left(\overrightarrow{v_{j}}\cdot\overrightarrow{v_{j}}\right)=1$
 \end_inset
 
  for all 
-\begin_inset Formula $k$
+\begin_inset Formula $j$
 \end_inset
 
-)
+.
 \end_layout
 
-\begin_layout Enumerate
-Take projection of points, 
-\begin_inset Formula $V\Lambda$
+\begin_layout Standard
+As a final step, the transformed representation, 
+\begin_inset Formula $Y$
+\end_inset
+
+, of the original data points may be found by:
+\begin_inset Formula \[
+Y=V\Lambda\]
+
+\end_inset
+
+where the transformed representation of each point forms a row in 
+\begin_inset Formula $Y$
 \end_inset
 
 , where 
-\begin_inset Formula $V$
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $V=\left(\begin{array}{ccc}
+\overrightarrow{v_{1}} & \cdots & \overrightarrow{v_{D}}\end{array}\right)$
 \end_inset
 
- is eigenvector matrix, 
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ is a matrix of the normalized eigenvectors as columns, and where 
 \begin_inset Formula $\Lambda$
 \end_inset
 
- is matrix with 
+ is a matrix with the square root of eigenvalues 
 \begin_inset Formula $\sqrt{\lambda_{1}}\ldots\sqrt{\lambda_{M}}$
 \end_inset
 
- along diagonal
+ along its diagonal 
+\begin_inset LatexCommand cite
+key "000tb,blakemve"
+
+\end_inset
+
+.
+ Low dimensional representations can be found by sorting the eigenvalues
+ and eigenvectors in descending order of the eigenvalues, and skipping computati
+on of the rightmost columns of matrix 
+\begin_inset Formula $Y$
+\end_inset
+
+.
 \end_layout
 
-\begin_layout Enumerate
-Plot 2D visualization using 2 coordinates with highest eigenvalues, dropping
- other coordinates
-\end_layout
-
-\end_deeper
 \begin_layout Standard
---
-\end_layout
+In addition to computing low dimensional representations of the original
+ data points with Kernel PCA, it is also possible to compute representations
+ of arbitrary points 
+\begin_inset LatexCommand cite
+key "sch98nonlinear"
 
-\begin_layout Itemize
-Builds on Kernel PCA, finding optimal Kernel Matrix using semidefinite programmi
-ng.
-\end_layout
-
-\begin_layout Itemize
-Given a set of 
-\begin_inset Quotes eld
 \end_inset
 
-neighbors
-\begin_inset Quotes erd
-\end_inset
-
- for each point, maintains distances between neighboring points while maximizing
- distances between unconstrained points.
+, although it is not necessary to do so in the application described in
+ this paper.
 \end_layout
 
-\begin_layout Itemize
-Advantage: If points are scattered on high dimensional manifold which twists
- and curves, fixing neighboring points and spreading out distant points
+\begin_layout Subsection*
+Semidefinite Embedding
+\end_layout
+
+\begin_layout Standard
+Kernel PCA provides a powerful visualization technique, but it leaves open
+ the question of what type of kernel function should be used with it.
+ The kernel function is what defines the mapping of the original high-dimensiona
+l data into the intermediate higher-dimensional space where PCA takes place.
+ For data that is Gaussian distributed, in an elliptical cloud with low
+ variance in some directions, and high variance in others, the linear kernel
  
-\begin_inset Quotes eld
+\begin_inset Formula $k\left(\overrightarrow{x_{j}},\overrightarrow{x_{k}}\right)=\overrightarrow{x_{j}}\cdot\overrightarrow{x_{k}}$
 \end_inset
 
-flattens
-\begin_inset Quotes erd
+ may work very well.
+ For data occupying more complicated shapes, polynomial (
+\begin_inset Formula $k\left(\overrightarrow{x_{j}},\overrightarrow{x_{k}}\right)=\left(\overrightarrow{x_{j}}\cdot\overrightarrow{x_{k}}+1\right)^{p}$
 \end_inset
 
- manifold, giving good visualization of points lying on it.
+) and RBF kernels (
+\begin_inset Formula $k\left(\overrightarrow{x_{j}},\overrightarrow{x_{k}}\right)=e^{-\left\Vert \overrightarrow{x_{j}}-\overrightarrow{x_{k}}\right\Vert ^{2}/2\sigma^{2}}$
+\end_inset
+
+) may provide better results.
+ There are also many domain specific kernels, designed to work on image,
+ text, or speech data, for example.
+ 
 \end_layout
 
-\begin_layout Itemize
-Program: Maximize 
-\begin_inset Formula $tr\left(K\right)$
+\begin_layout Standard
+One limitation of many kernels for the purpose of visualization is that
+ they often provide poor measures of affinity between distant data points
+ which are not closely related to each other, even when they do give useful
+ measures for points that are closer together.
+ For example, it is possible to imagine a text kernel that gives a useful
+ measure of similarity between related documents that have the same topic
+ and structure, but provide less meaningful scores between documents that
+ are more different.
+ This can be a problem any time a closed-form kernel is used on a high-dimension
+al, but highly constrained data sets like English text, or natural images.
+ Data points in these types of data sets tend to occur on twisted, low dimension
+al manifolds within the high dimensional vector space used to describe them.
+ Effective visualizations for these data sets need to show the relative
+ position of data points along the manifolds in which they occur, instead
+ of their positions in the larger vector space, and the transformations
+ done by closed-form kernels may not be able to accurately capture the shape
+ of the manifold when giving the affinities for points which are not close
+ together.
+\end_layout
+
+\begin_layout Standard
+Semidefinite Embedding (SDE) 
+\begin_inset LatexCommand cite
+key "000sde"
+
 \end_inset
 
- (distance between points), subject to 
+ attempts to improve this situation by learning a Kernel matrix which effectivel
+y flattens out the manifold.
+ It relies on normal dot product computation to find affinities between
+ points which are closely related to each other and then it stretches, or
+ unfolds the manifold by attempting to maximize the distance between all
+ data points which are not linked together.
+ As input, the SDE algorithm takes a connectivity matrix, 
+\begin_inset Formula $\eta$
+\end_inset
+
+, denoting the points are presumed to lie close to each other on the manifold,
+ and a Gram matrix, 
+\begin_inset Formula $G,$
+\end_inset
+
+ describing the affinity between points that are directly connected, or
+ are connected through a neighbor.
+ Semidefinite programming, a convex optimization technique, is used to an
+ optimal matrix, which is plugged in as the Kernel matrix in Kernel PCA
+ to yield the desired visualization.
+\end_layout
+
+\begin_layout Standard
+The semidefinite programming problem is described by an objective function
+ to be maximized, and a list of constraints.
+ The first constraint is that the outputted kernel matrix 
+\begin_inset Formula $K$
+\end_inset
+
+, is positive semidefinite (
 \begin_inset Formula $K\succ0$
 \end_inset
 
- (positive semidefinite kernel matrix), 
+).
+ This constraint is natural because by definition, all kernel matrices (matrices
+ 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+whose elements are expressed as dot products of high dimensional mappings,
+ as in
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ 
+\begin_inset Formula $K_{ij}=\phi\left(\overrightarrow{x_{j}}\right)\cdot\phi\left(\overrightarrow{x_{k}}\right)$
+\end_inset
+
+) are positive semidefinite.
+ The second constraint is 
 \begin_inset Formula $\sum_{ij}K_{ij}=0$
 \end_inset
 
- (centers kernel matrix), and 
+, which limits the output to the set of 
+\begin_inset Quotes eld
+\end_inset
+
+centered
+\begin_inset Quotes erd
+\end_inset
+
+ kernel matrices which give meaningful results with Kernel PCA.
+ The third constraint is expressed as 
 \begin_inset Formula $K_{ii}+K_{jj}-K_{ij}-K_{ji}=G_{ii}+G_{jj}-G_{ij}-G_{ji}$
 \end_inset
 
- where 
-\begin_inset Formula $G_{ij}=x_{i}\cdot x_{j}$
-\end_inset
-
- for all points 
+, and must hold for all points 
 \begin_inset Formula $i$
 \end_inset
 
@@ -338,121 +672,121 @@ Program: Maximize
 \begin_inset Formula $j$
 \end_inset
 
- which are neighbor of each other or a common point (preserves local distances).
-\end_layout
-
-\begin_layout Itemize
---
-\end_layout
-
-\begin_layout Itemize
-Builds on Semidefinite embedding.
- Instead of maximizing 
-\begin_inset Formula $tr\left(K\right)=\sum_{i=1}^{N}\lambda_{i}$
+ which are neighbors of each other or of a common point.
+ This third constraint is what preserves the distances and local relationships
+ between sets of connected points.
+ The objective function to be maximized is 
+\begin_inset Formula $tr\left(K\right)$
 \end_inset
 
-, seeks to maximize 
-\begin_inset Formula $\sum_{i=1}^{d}\lambda_{i}-\sum_{i=d+1}^{N}\lambda_{i}$
-\end_inset
-
-
+.
+ Maximizing this value maximizes the distance between all unconstrained
+ points, and is what causes the manifold to be pulled apart, unfolding and
+ flattening it.
 \end_layout
 
-\begin_layout Itemize
-Instead of maximizing distance between point in every dimension, only maximizes
- distance in the first 
+\begin_layout Standard
+Because SDE takes an arbitrary Gram matrix as input, any kernel function
+ can be used to compute the local affinities that SDE preserves in the final
+ embedding.
+ To compute the connectivity matrix input, 
+\begin_inset Formula $k$
+\end_inset
+
+-nearest neighbors, or any other clustering algorithm may be used.
+\end_layout
+
+\begin_layout Subsection*
+Minimum Volume Embedding
+\end_layout
+
+\begin_layout Standard
+One weakness of SDE is that the objective function it maximizes, 
+\begin_inset Formula $tr\left(K\right)$
+\end_inset
+
+, increases the distance between unconnected points in every dimension,
+ instead of just the two or three dimensions being visualized.
+ Since we only ever see the distances between points in the dimensions associate
+d with the highest eigenvalues of the kernel matrix, this is not the objective
+ function we really seek to maximize.
+ As such, there are cases where SDE will not do an optimal job reshaping
+ the manifold for visualization, such as when the connectivity graph has
+ a hub-and-spokes structure.
+\end_layout
+
+\begin_layout Standard
+Minimum Volume Embedding (MVE) 
+\begin_inset LatexCommand cite
+key "000bshaw"
+
+\end_inset
+
+ can provide improved results by maximizing distances between points in
+ the first 
 \begin_inset Formula $d$
 \end_inset
 
- dimensions being visualized, and minimize distance in remaining dimensions.
-\end_layout
+ visible dimensions while simultaneously minimizing the distances between
+ points in all other dimensions.
+ This corresponds to maximizing the value of 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
 
-\begin_layout Itemize
-This does a better job 
-\begin_inset Quotes eld
+\begin_inset Formula \[
+\sum_{i=1}^{d}\lambda_{i}-\sum_{i=d+1}^{N}\lambda_{i}\]
+
 \end_inset
 
-flattening
-\begin_inset Quotes erd
-\end_inset
-
- the data, minimizing volume behind it, at cost of being more expensive
- to compute.
-\end_layout
-
-\begin_layout Itemize
-Algorithm is iterative, taking existing kernel matrix, 
-\begin_inset Formula $K$
-\end_inset
-
-, finding eigenvectors 
-\begin_inset Formula $\overrightarrow{v_{i}}$
-\end_inset
-
-, performing modified SDE to minimize 
-\begin_inset Formula $tr\left(K\left(-\sum_{i=1}^{d}\overrightarrow{v_{i}}\overrightarrow{v_{i}}{}^{\prime}+\sum_{i=d+1}^{N}\overrightarrow{v_{i}}\overrightarrow{v_{i}}{}^{\prime}\right)\right)$
-\end_inset
-
-, and repeating with new 
-\begin_inset Formula $K$
-\end_inset
-
- until convergence.
-\end_layout
-
-\begin_layout Section
-String Kernels
-\end_layout
-
-\begin_layout Itemize
-Each document is represented as a vector of word counts, normalized so documents
- of differing lengths can be compared.
-\end_layout
-
-\begin_layout Itemize
-
-\emph on
-Stemming
+, which is a modification of the objective function used in SDE, recalling
+ that 
+\family default
+\series default
+\shape default
+\size default
 \emph default
- algorithm maps related words with different suffixes.
- For example, 
-\begin_inset Quotes eld
-\end_inset
+\bar default
+\noun default
+\color inherit
 
-computes
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-computing
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-computer
-\begin_inset Quotes erd
-\end_inset
-
-, mapped into a canonical word stem form, 
-\begin_inset Quotes eld
-\end_inset
-
-comput
-\begin_inset Quotes erd
+\begin_inset Formula $tr\left(K\right)=\sum_{i=1}^{N}\lambda_{i}$
 \end_inset
 
 .
 \end_layout
 
-\begin_layout Itemize
-To cut down on irrelevant features, a stop word list is used to remove words
- like 
+\begin_layout Standard
+Semidefinite programming combined with an iterative alternative minimization
+ scheme make MVE more computationally expensive to implement than SDE, but
+ with better results for certain types of visualizations.
+\end_layout
+
+\begin_layout Section
+Experiment
+\end_layout
+
+\begin_layout Subsection*
+Text Representation
+\end_layout
+
+\begin_layout Standard
+A relatively simple text representation, which has been shown to give good
+ results for document classification with kernel methods 
+\begin_inset LatexCommand cite
+key "joachims98text"
+
+\end_inset
+
+, was used in this project, and gave good results for document visualization
+ with Kernel PCA techniques.
+ Each document was represented as a vector of word counts.
+ During initial parsing, stop-words like 
 \begin_inset Quotes eld
 \end_inset
 
@@ -476,59 +810,220 @@ the
 \begin_inset Quotes erd
 \end_inset
 
- from feature vectors.
-\end_layout
+ were removed using an English stop-word list 
+\begin_inset LatexCommand cite
+key "stop"
 
-\begin_layout Itemize
-Remaining words are weighted by 
+\end_inset
+
+, and a stemming algorithm 
+\begin_inset LatexCommand cite
+key "snowball"
+
+\end_inset
+
+ was used to map the related words with different suffixes (for example,
+ 
+\begin_inset Quotes eld
+\end_inset
+
+computes
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+computing
+\begin_inset Quotes erd
+\end_inset
+
+, and 
+\begin_inset Quotes eld
+\end_inset
+
+computer
+\begin_inset Quotes erd
+\end_inset
+
+), into a canonical word-stem form, so their counts would be added up in
+ the resulting feature vectors.
+ The resulting word count vectors were normalized to sum to one to allow
+ for more meaningful comparisons of documents with different lengths.
+ The word counts were then weighted by 
 \emph on
 inverse document frequency
 \emph default
- (IDF), which is just one over the total number of documents a word appears
- in.
+ (IDF) values computed by 
+\begin_inset Formula \[
+IDF\left(w_{i}\right)=\log\left(\frac{n}{DF\left(w_{i}\right)}\right)\]
+
+\end_inset
+
+for each word 
+\begin_inset Formula $w_{i}$
+\end_inset
+
+ where 
+\begin_inset Formula $n$
+\end_inset
+
+ was the total number of documents in the set, and 
+\begin_inset Formula $DF\left(w_{i}\right)$
+\end_inset
+
+ was number of documents the word appeared in (the 
+\emph on
+document frequency
+\emph default
+).
+ Weighting by IDF helps give words which only occur in some documents, which
+ can be good indicators of subject matter, more influence over the visualization
+ results.
+ 
 \end_layout
 
-\begin_layout Itemize
-RBF kernel used with above preprocessing steps, since this kernel and representa
-tion have been shown to be effective for text categorization (Joachims 98)
+\begin_layout Standard
+This vector representation was used with an RBF kernel to compute document
+ affinities.
+ The RBF kernel was chosen because it has been shown to work well with similar
+ text representations for text classification.
+ A 
+\emph on
+k
+\emph default
+-nearest neighbors algorithm was used to compute the connectivity matrices
+ passed as input the SDE and MVE implementations.
 \end_layout
 
-\begin_layout Section
-Experiment
+\begin_layout Subsection*
+Data Set
 \end_layout
 
-\begin_layout Itemize
-Experiment was to do two dimensional visualization with issue documents
- from 2008 presidential candidates' campaign web sites.
+\begin_layout Standard
+The data set used was a collection of issue documents from the 2008 presidential
+ candidates' campaign web sites.
+ Each document was labeled for the its topic (environment, health care,
+ foreign policy, etc.), and the candidate whose views it expressed (Clinton,
+ Giuliani, etc.) Having a data set with two distinct labels for each point
+ was expected to make visualization more interesting, and to make it easier
+ to look for patterns in output.
 \end_layout
 
-\begin_layout Itemize
-Each document was labeled for the its topic (environment, healthcare, foreign
- policy, etc.), and the candidate whose views it expressed (Clinton, Giuliani,
- etc.)
+\begin_layout Subsection*
+Results
 \end_layout
 
-\begin_layout Itemize
-Having dataset with two distinct labels for each point, makes visualization
- more interesting, makes it easier to look for patterns in output.
+\begin_layout Standard
+The results of using Kernel PCA with an RBF kernel, and Kernel PCA with
+ SDE and MVE kernels are shown in Figure 
+\begin_inset LatexCommand ref
+reference "fig1"
+
+\end_inset
+
+.
+ The visualizations produced by these methods were all very similar, with
+ the SDE and MVE visualizations being completely indistinguishable.
+ In the graphs, documents are pretty clearly clustered together by topic.
+ It was harder to find any clear correlation between the position of documents
+ in the graph and the candidates' websites they originated from.
+\begin_inset Float figure
+placement p
+wide true
+sideways false
+status open
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename 1-kpca.eps
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename 2-sde.eps
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename 3-mve.eps
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig1"
+
+\end_inset
+
+Visualization Results using an RBF kernel with Kernel PCA (top), Semidefinite
+ Embedding (middle), and Minimum Volume Embedding (bottom)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+Adjusting the sigma parameter used in the RBF kernel did not seem to have
+ a discernible impact on visualization, unless the values were extremely
+ large or extremely small, in which cases the visualization ceased to provide
+ meaningful results.
+ Adjusting the number of neighbors found by the k-nearest neighbor algorithm
+ also did not have much effect on results once they were set above around
+ 20% of the total number of documents.
 \end_layout
 
 \begin_layout Section
 Conclusion
 \end_layout
 
-\begin_layout Itemize
-In progress...
+\begin_layout Standard
+The Kernel PCA methods used in this project were able to generate meaningful
+ visualizations of text documents using a very simple documentation which
+ was based solely on individual word counts, and did not take into account
+ word order or document structure.
+ It would be interesting to see if visualization could be improved with
+ a more sophisticated representation that did take these things into account,
+ and to see if the manifold-flattening SDE and MVE techniques would give
+ better results than the simple RBF kernel, given more complex and constrained
+ representations.
 \end_layout
 
-\begin_layout Itemize
-So far no clear or especially meaningful patterns in visualizations have
- emerged
-\end_layout
-
-\begin_layout Itemize
-Sample visualization: Kernel PCA with Gaussian kernel, each candidate a
- different color, each topic a different symbol
+\begin_layout Standard
+It would also be better to test these visualization techniques on larger
+ data sets than the one used in this experiment, and to test with data sets
+ containing different types of text, for example newspaper articles, encyclopedi
+a articles, web pages, to see how well the visualization is able to cluster
+ related documents written in different styles and formats.
 \end_layout
 
 \begin_layout Standard
